@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FB Like & Comment Exporter</title>
+    <style>
+      body {
+        width: 290px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 14px;
+        background: #f0f2f5;
+        color: #050505;
+      }
+      .header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+      h3 {
+        margin: 0;
+        font-size: 15px;
+        color: #1877f2;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .btn-detach {
+        background: #e4e6eb;
+        color: #050505;
+        border: none;
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: 0.2s;
+      }
+      .btn-detach:hover {
+        background: #1877f2;
+        color: white;
+      }
+      .status-text {
+        font-size: 11px;
+        color: #65676b;
+        margin-bottom: 10px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+      }
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #42b72a;
+        display: inline-block;
+      }
+      .status-dot.disconnected {
+        background: #e41e3f;
+      }
+      .card {
+        background: white;
+        padding: 12px;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-bottom: 12px;
+      }
+      .card-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: #65676b;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .count-box {
+        text-align: center;
+        margin-bottom: 8px;
+      }
+      .count {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1877f2;
+      }
+      .count.comment {
+        color: #42b72a;
+      }
+      .count.minigame, .count.both {
+        color: #6f42c1;
+      }
+      .card-minigame {
+        border: 1px solid #dcd0f9;
+        background: #faf8ff;
+      }
+      .options-container {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 8px;
+        background: #f1edfa;
+        padding: 8px 10px;
+        border-radius: 6px;
+      }
+      .option-item {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12px;
+        font-weight: 500;
+        color: #262626;
+        cursor: pointer;
+        user-select: none;
+      }
+      .option-item input[type="checkbox"] {
+        cursor: pointer;
+        accent-color: #6f42c1;
+        width: 15px;
+        height: 15px;
+        margin: 0;
+      }
+      .count-subtext {
+        font-size: 11px;
+        color: #65676b;
+        margin-bottom: 2px;
+      }
+      .sub-option-row {
+        display: none;
+        margin-left: 22px;
+        margin-top: -2px;
+        margin-bottom: 2px;
+      }
+      .sub-option-select {
+        font-size: 11px;
+        padding: 4px 6px;
+        border-radius: 4px;
+        border: 1px solid #d0c4eb;
+        background: white;
+        color: #333;
+        width: 100%;
+        cursor: pointer;
+        outline: none;
+      }
+      .sub-option-select:focus {
+        border-color: #6f42c1;
+      }
+      .btn-group {
+        display: flex;
+        gap: 6px;
+      }
+      button {
+        flex: 1;
+        padding: 8px 4px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 12px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .btn-primary {
+        background: #1877f2;
+        color: white;
+      }
+      .btn-primary:hover { background: #166fe5; }
+      .btn-success {
+        background: #42b72a;
+        color: white;
+      }
+      .btn-success:hover { background: #36a420; }
+      .btn-purple {
+        background: #6f42c1;
+        color: white;
+      }
+      .btn-purple:hover { background: #59339d; }
+      .btn-secondary {
+        background: #e4e6eb;
+        color: #050505;
+        flex: 0.6;
+      }
+      .btn-secondary:hover { background: #d8dadf; }
+      button:disabled {
+        background: #e4e6eb;
+        color: #bcc0c4;
+        cursor: not-allowed;
+      }
+      .note {
+        font-size: 11px;
+        color: #65676b;
+        text-align: center;
+        line-height: 1.3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-bar">
+      <h3>📊 FB Data Exporter</h3>
+      <button id="openStandaloneBtn" class="btn-detach" title="Mở thành Cửa Sổ Riêng để kéo thả và không bị tắt khi chuyển tab">
+        ⧉ Cửa sổ riêng
+      </button>
+    </div>
+    <div class="status-text" id="statusContainer">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Đang tìm tab Facebook...</span>
+    </div>
+
+    <!-- PHẦN 1: CẢM XÚC -->
+    <div class="card">
+      <div class="card-title">
+        <span>Lượt Thả Cảm Xúc</span>
+        <span>👍❤️</span>
+      </div>
+      <div class="count-box">
+        <div id="likeCount" class="count">0</div>
+      </div>
+      <div class="btn-group">
+        <button id="exportLikesBtn" class="btn-primary" disabled>Xuất Excel Like</button>
+        <button id="clearLikesBtn" class="btn-secondary" disabled>Xóa</button>
+      </div>
+    </div>
+
+    <!-- PHẦN 2: BÌNH LUẬN -->
+    <div class="card">
+      <div class="card-title">
+        <span>Bình Luận Bài Viết</span>
+        <span>💬</span>
+      </div>
+      <div class="count-box">
+        <div id="commentCount" class="count comment">0</div>
+      </div>
+      <div class="btn-group">
+        <button id="exportCommentsBtn" class="btn-success" disabled>Xuất Excel Cmt</button>
+        <button id="clearCommentsBtn" class="btn-secondary" disabled>Xóa</button>
+      </div>
+    </div>
+
+    <!-- PHẦN 3: YÊU CẦU MINIGAME (TÙY CHỌN ĐIỀU KIỆN) -->
+    <div class="card card-minigame">
+      <div class="card-title" style="color: #6f42c1;">
+        <span>Yêu Cầu Minigame</span>
+        <span>🎁🎯</span>
+      </div>
+      
+      <div class="options-container">
+        <label class="option-item">
+          <input type="checkbox" id="optReqLike" checked />
+          <span>👍 Đã thả Cảm Xúc</span>
+        </label>
+        <label class="option-item">
+          <input type="checkbox" id="optReqComment" checked />
+          <span>💬 Đã Bình Luận</span>
+        </label>
+        <label class="option-item">
+          <input type="checkbox" id="optReqLuckyNumber" />
+          <span>🔢 Có số may mắn</span>
+        </label>
+        <div class="sub-option-row" id="numberOptionsRow">
+          <select id="luckyNumberDigits" class="sub-option-select">
+            <option value="any">Bất kỳ số nào (1 - 6 số)</option>
+            <option value="2">Đúng 2 chữ số (00 - 99)</option>
+            <option value="3">Đúng 3 chữ số (000 - 999)</option>
+            <option value="4">Đúng 4 chữ số (0000 - 9999)</option>
+          </select>
+        </div>
+        <label class="option-item">
+          <input type="checkbox" id="optReqTag" />
+          <span>👥 Đã tag bạn bè</span>
+        </label>
+        <div class="sub-option-row" id="tagOptionsRow">
+          <select id="tagCountSelect" class="sub-option-select">
+            <option value="1">Tag tối thiểu 1 người (≥ 1)</option>
+            <option value="2" selected>Tag tối thiểu 2 người (≥ 2)</option>
+            <option value="3">Tag tối thiểu 3 người (≥ 3)</option>
+            <option value="4">Tag tối thiểu 4 người (≥ 4)</option>
+            <option value="5">Tag tối thiểu 5 người (≥ 5)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="count-box">
+        <div class="count-subtext">Số người hợp lệ:</div>
+        <div id="minigameCount" class="count minigame">0</div>
+      </div>
+      <div class="btn-group">
+        <button id="exportMinigameBtn" class="btn-purple" disabled>Xuất Excel Hợp Lệ</button>
+      </div>
+    </div>
+
+    <div class="note">
+      • Mở hộp thoại Like & cuộn để lấy cảm xúc.<br>
+      • Lướt phần bình luận bài viết để lấy cmt.<br>
+      • Mục "Yêu Cầu Minigame" tự động lọc theo tùy chọn bạn tích.
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

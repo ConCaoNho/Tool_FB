@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Facebook Like Exporter",
+  "version": "1.1",
+  "description": "Tiện ích xuất danh sách người like bài viết Facebook ra file CSV",
+  "permissions": ["activeTab", "tabs", "scripting"],
+  "host_permissions": [
+    "*://*.facebook.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Like Exporter"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.facebook.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
